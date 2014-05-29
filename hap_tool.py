@@ -3,6 +3,7 @@ import argparse
 from argparse import RawTextHelpFormatter
 import os, sys, math, bz2, itertools, re, getopt
 from scipy.stats import beta
+import pickle
 
    #<TODO> 
    # need to include deletions and insertions and other complex variants
@@ -31,7 +32,6 @@ def remove_chrom(i,type="vcf"):
 			infile.append("\t".join(cols).rstrip('\r\n'))
 		else:
 			infile.append(line.rstrip('\r\n'))
-#		print line.rstrip('\r\n')
     return(infile)
 
 
@@ -114,7 +114,8 @@ def expand_chrom_M(x,type='vcf'):
 					reference = chrom_m_seq[each]
 					alleleSeq = chrom_m_old_seq[each]
 					expanded_chrM.append(begin + '\t' + end + '\t' + varType + '\t' + reference + '\t' + alleleSeq)  
-				
+# 		for i in expanded_chrM:
+# 			print i
 		return(expanded_chrM)
     	
 	if type=='vcf':
@@ -130,7 +131,8 @@ def expand_chrom_M(x,type='vcf'):
 			elif i_s[3]=='.' or i_s[4]=='.': # if not a snp
 				continue
 
-			alele_pos = int(i_s[1])    
+			alele_pos = int(i_s[1])
+
 			list_of_allele_pos.append(alele_pos)
 			
 			if alele_pos>=311 and alele_pos<=316:
@@ -175,7 +177,8 @@ def expand_chrom_M(x,type='vcf'):
 			reference = chrom_m_seq[j-1] # python is base 0, the above should be base 1
 			alleleSeq = chrom_m_old_seq[i-1] # python is base 0, the above should be base 1
 			expanded_chrM.append(begin + '\t' + end + '\t' + varType + '\t' + reference + '\t' + alleleSeq)  
-			
+# 		for i in expanded_chrM:
+# 			print i
 		return(expanded_chrM)
 #___________________
 def fix_chrom_M(i):
@@ -242,8 +245,8 @@ try:
 			ii = open(sample_name,'r')
 		infile = remove_chrom(ii,type = type)
 		ii.close()
-		chrom_M = filter_vars(infile,type = type)
-		expanded_chrom_M = expand_chrom_M(chrom_M,type = type)
+		chrom_M = filter_vars(infile,type)
+		expanded_chrom_M = expand_chrom_M(chrom_M,type)
 		fixed_chrom_M = fix_chrom_M(expanded_chrom_M)
 		hsd[sample_name] = get_hsd(fixed_chrom_M,sample_name)
 except:
@@ -260,50 +263,70 @@ haplogroups = {}
 hap_list = []
 phylotree = []
 
-for i in open_file.readlines():
-	line = i.rstrip('\n\r')
-	line = line.strip()
-	phylotree.append(line)
-	if line[0:18] == '<haplogroup name="':
-		haplogroups[line[18:-2]] = []
-		try:
-			haplogroups[line[18:-2]].extend(haplogroups[hap_list[-1]])
-		except:
-			pass
-		hap_list.append(line[18:-2])
-	elif line[0:6] == '<poly>':
-		haplogroups[hap_list[-1]].append(line[6:-7])
-	elif line[0:13] == '</haplogroup>':
-		hap_list.pop()
-	else:
-		continue
+# for i in open_file.readlines():
+# 	line = i.rstrip('\n\r')
+# 	line = line.strip()
+# 	phylotree.append(line)
+# 	if line[0:18] == '<haplogroup name="':
+# 		haplogroups[line[18:-2]] = []
+# 		try:
+# 			haplogroups[line[18:-2]].extend(haplogroups[hap_list[-1]])
+# 		except:
+# 			pass
+# 		hap_list.append(line[18:-2])
+# 	elif line[0:6] == '<poly>':
+# 		haplogroups[hap_list[-1]].append(line[6:-7])
+# 	elif line[0:13] == '</haplogroup>':
+# 		hap_list.pop()
+# 	else:
+# 		continue
 		
+# filehandler = open("haplogroups.obj","wb")
+# pickle.dump(haplogroups,filehandler)
+# filehandler.close()
+file = open("haplogroups.obj",'rb')
+haplogroups = pickle.load(file)
+file.close()
 
-polys = []
-for i in sorted(haplogroups.keys()):
-	polys.extend(haplogroups[i])
-polys = list(set(polys))
-poly_hash = {}
-for i in polys:
-	for ii in phylotree:
-		if re.search(">" + i + "<",ii):
-			if i in poly_hash.keys():
-				poly_hash[i] += 1
-			else:
-				poly_hash[i] = 1
-
-# occurrences
-#for i in poly_hash.keys():
-#	print i,':\t',poly_hash[i]
-	
-poly_num = [poly_hash[i] for i in poly_hash.keys()]
-#print max(poly_num)
-for i in poly_hash.keys():
-	poly_hash[i] = (max(poly_num) + 1) - poly_hash[i]
+# polys = []
+# for i in sorted(haplogroups.keys()):
+# 	polys.extend(haplogroups[i])
+# polys = list(set(polys))
+# poly_hash = {}
+# for i in polys:
+# 	for ii in phylotree:
+# 		if re.search(">" + i + "<",ii):
+# 			if i in poly_hash.keys():
+# 				poly_hash[i] += 1
+# 			else:
+# 				poly_hash[i] = 1
+# 
+# # occurrences
+# #for i in poly_hash.keys():
+# #	print i,':\t',poly_hash[i]
+# 	
+# poly_num = [poly_hash[i] for i in poly_hash.keys()]
+# #print max(poly_num)
+# for i in poly_hash.keys():
+# 	poly_hash[i] = (max(poly_num) + 1) - poly_hash[i]
 
 # weights
 #for i in poly_hash.keys():
 #	print i,':\t',poly_hash[i]
+
+# filehandler = open("polys.obj","wb")
+# pickle.dump(polys,filehandler)
+# filehandler.close()
+# filehandler = open("poly_hash.obj","wb")
+# pickle.dump(poly_hash,filehandler)
+# filehandler.close()
+file = open("poly_hash.obj",'rb')
+poly_hash = pickle.load(file)
+file.close()
+file = open("polys.obj",'rb')
+polys = pickle.load(file)
+file.close()
+
 
 
 #here we estimate haplogroup
