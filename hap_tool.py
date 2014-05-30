@@ -216,7 +216,7 @@ parser = argparse.ArgumentParser(description="This script uses phylotree informa
 												"- return all loci which should have a SNP",formatter_class=RawTextHelpFormatter)
 
 parser.add_argument('-phy',metavar='<phy>',help='phylotree build in xml format', required=True)
-parser.add_argument('-ana',metavar='<ana>',help='analysis type; haplogroup, error_rate, FN_locs', default='haplogroup')
+parser.add_argument('-ana',metavar='<ana>',help='analysis type; haplogroup, error_rate, FN_locus', default='haplogroup')
 parser.add_argument('-ft',metavar='<ft>',help='file type; vcf, var', default='vcf')
 parser.add_argument('-file',metavar='<file>',help='input file, .vcf or .var', nargs='*', required=True)
 
