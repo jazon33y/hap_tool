@@ -19,6 +19,8 @@ def remove_chrom(i,type="vcf"):
     infile = []
     if type == "vcf":
     	col_num = 0
+    elif type == "vcfgrch":
+    	col_num = 0
     elif type == "var":
     	col_num = 3
     for line in i.readlines():
@@ -39,6 +41,8 @@ def remove_chrom(i,type="vcf"):
 def filter_vars(i,type="vcf"): 
 	try:
 		if type == "vcf":
+			col_num = 0
+		elif type == "vcfgrch":
 			col_num = 0
 		elif type == "var":
 			col_num = 3
@@ -180,6 +184,46 @@ def expand_chrom_M(x,type='vcf'):
 # 		for i in expanded_chrM:
 # 			print i
 		return(expanded_chrM)
+		
+	if type=='vcfgrch':
+		#hg19
+		list_of_allele_pos = []
+		for i in x:
+			i_s = i.split('\t')
+			if len(i_s[3]) > 1 or len(i_s[4]) > 1:  # if not a snp
+				continue
+			elif i_s[3]=='-' or i_s[4]=='-': # if not a snp
+				continue
+			elif i_s[3]=='.' or i_s[4]=='.': # if not a snp
+				continue
+
+			alele_pos = int(i_s[1])
+			list_of_allele_pos.append(alele_pos)
+							
+			begin = str(int(alele_pos))
+			end = begin
+			varType = 'snp' #  should be snp at this point
+			reference = chrom_m_seq[int(alele_pos)-1] # python is base 0, the above should be base 1
+			alleleSeq = i_s[4]
+			expanded_chrM.append(begin + '\t' + end + '\t' + varType + '\t' + reference + '\t' + alleleSeq)
+	
+		refs = list(set(range(1,len(chrom_m_old_seq)+1)) - set(list_of_allele_pos))
+#		print min(refs)-1
+#		print max(refs)-1
+#		print max(range(len(chrom_m_seq)))
+#		print min(range(len(chrom_m_seq)))
+		
+		for i in refs:
+			begin = str(i)
+			end = begin
+			varType = 'ref' # should be only ref calls now
+			reference = chrom_m_seq[i-1] # python is base 0, the above should be base 1
+			alleleSeq = chrom_m_old_seq[i-1] # python is base 0, the above should be base 1
+			expanded_chrM.append(begin + '\t' + end + '\t' + varType + '\t' + reference + '\t' + alleleSeq)  
+# 		for i in expanded_chrM:
+# 			print i
+
+		return(expanded_chrM)
 #___________________
 def fix_chrom_M(i):
 #this function generates a set of fixed chromM variants
@@ -217,7 +261,7 @@ parser = argparse.ArgumentParser(description="This script uses phylotree informa
 
 parser.add_argument('-phy',metavar='<phy>',help='phylotree build in xml format', required=True)
 parser.add_argument('-ana',metavar='<ana>',help='analysis type; haplogroup, error_rate, FN_locus', default='haplogroup')
-parser.add_argument('-ft',metavar='<ft>',help='file type; vcf, var', default='vcf')
+parser.add_argument('-ft',metavar='<ft>',help='file type; vcf, vcfgrch, var', default='vcf')
 parser.add_argument('-file',metavar='<file>',help='input file, .vcf or .var', nargs='*', required=True)
 
 args = parser.parse_args()
