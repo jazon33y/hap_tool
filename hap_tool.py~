@@ -29,13 +29,13 @@ def remove_chrom(i,type="vcf"):
 			continue
 		if (cols[col_num][:2] == "MT"):
 			cols[col_num] = 'M'
-			infile.append("\t".join(cols).rstrip('\r\n'))
 		if (cols[col_num][:3] == "chr"):
 			cols[col_num] = cols[col_num][3:] ## removes the characters: 'chr'
 			infile.append("\t".join(cols).rstrip('\r\n'))
 		else:
 			infile.append(line.rstrip('\r\n'))
-    return(infile)
+	print infile
+	return(infile)
 
 
 # This function just removes all but chromM variants
