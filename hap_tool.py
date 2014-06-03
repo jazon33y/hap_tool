@@ -454,8 +454,8 @@ n = 1000
 p1 = 1 # flat prior
 p2 = 1 # flat prior
 len_ones = len(ones)
-print ones
-print len_ones
+#print ones
+#print len_ones
 post = []
 for i in range(n):
 	post.append(beta.rvs(sum(ones)+p1,len_ones-sum(ones)+p2)) # generate the posterior
