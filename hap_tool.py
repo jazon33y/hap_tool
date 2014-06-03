@@ -421,7 +421,6 @@ for i in hsd.keys():
 		failures = len(set(b) - set(a))
 		failed_vars = (set(b) - set(a))
 		failed_var_list = list(failed_vars)
-#		print failed_var_list
 		out_list = []
 		for ii in range(0,len(failed_var_list)):
 			list_of_ele = list(failed_var_list[ii])
@@ -432,8 +431,9 @@ for i in hsd.keys():
 				out_list.append("".join(list_of_ele))
 #		print "\t".join(out_list)
 		all_var_locs.extend(out_list)
-#		sucesses = len(set(b)) - len(set(b) - set(a))
-		sucesses = (len(set(b)) - (len(set(b) - set(a))- len(all_var_locs))) - len(all_var_locs)
+		test_set = len(b) - (len(failed_var_list) - len(out_list) )
+		sucesses = test_set - len(out_list)
+		failures = len(out_list)
 #		print "Sucesses:",sucesses,"Failures:",failures,"Rate:",(float(len(list(set(b) - set(a))) ) / len(b) )
 	except:
 		continue # if there is an error, skip it and go to the next
@@ -454,6 +454,8 @@ n = 1000
 p1 = 1 # flat prior
 p2 = 1 # flat prior
 len_ones = len(ones)
+print ones
+print len_ones
 post = []
 for i in range(n):
 	post.append(beta.rvs(sum(ones)+p1,len_ones-sum(ones)+p2)) # generate the posterior
