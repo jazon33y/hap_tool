@@ -182,8 +182,8 @@ def expand_chrom_M(x,type='vcf'):
 			reference = chrom_m_seq[j-1] # python is base 0, the above should be base 1
 			alleleSeq = chrom_m_old_seq[i-1] # python is base 0, the above should be base 1
 			expanded_chrM.append(begin + '\t' + end + '\t' + varType + '\t' + reference + '\t' + alleleSeq)  
-		for i in expanded_chrM:
-			print i
+# 		for i in expanded_chrM:
+# 			print i
 		return(expanded_chrM)
 		
 	if type=='vcfgrch':
