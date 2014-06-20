@@ -25,11 +25,12 @@ import pickle
 #======
 
 parser = argparse.ArgumentParser(description="This script uses phylotree information to: \n\n\t"\
+												"- return chrM in FASTA format\n\t"\
 												"- estimate haplogroup\n\t"\
 												"- estimate false negative call rates\n\t"\
 												"- return all loci which should have a SNP",formatter_class=RawTextHelpFormatter)
 
-parser.add_argument('-ana',metavar='<ana>',help='analysis type; haplogroup, error_rate, FN_locus', default='haplogroup')
+parser.add_argument('-ana',metavar='<ana>',help='analysis type; fasta, haplogroup, error_rate, FN_locus', default='haplogroup')
 parser.add_argument('-ft',metavar='<ft>',help='file type; vcf, vcfgrch, var', default='vcf')
 parser.add_argument('-file',metavar='<file>',help='input file, .vcf or .var', nargs='*', required=True)
 
@@ -303,6 +304,18 @@ try:
 		hsd[sample_name] = get_hsd(fixed_chrom_M,sample_name)
 except:
 	print "\HSD creation error:", sys.exc_info()[0]
+
+if analysis_type=='fasta':		
+	def natural_sort(l): #natural sorting algorithm
+		convert = lambda text: int(text) if text.isdigit() else text.lower()
+		alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ]
+		return sorted(l, key = alphanum_key)
+	fasta_data = natural_sort(expanded_chrom_M)
+	fasta = []
+	for i in fasta_data:
+		fasta.append(i[-1:])
+	print ''.join(fasta)
+	sys.exit()
 
 # Here I estimate haplogroup based using the haplogrep algorithm
 
