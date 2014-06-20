@@ -299,6 +299,7 @@ except:
 	print "\HSD creation error:", sys.exc_info()[0]
 
 # Here I estimate haplogroup based using the haplogrep algorithm
+
 for i in hsd.keys():
 	test_list = hsd[i]
 	haplogroup_score = []
@@ -327,9 +328,12 @@ for i in hsd.keys():
 			max_score = test_score
 	if analysis_type=='haplogroup':
 		print i,':\t',max_score
-
-	hsd[max_score[0]] = hsd[i] # put in newly predicted haplogroup 
-	del hsd[i] # remove old file name as the key
+	varsz= hsd[i]
+	testing = {}
+	testing[max_score[0]] = varsz
+	hsd[i] = testing # put in newly predicted haplogroup 
+#	hsd[max_score[0]] = hsd[i] # put in newly predicted haplogroup 
+#	del hsd[i] # remove old file name as the key
 
 if analysis_type=='haplogroup':
 	sys.exit()		
@@ -339,11 +343,12 @@ losses = []
 all_var_locs = []
 for i in hsd.keys():
 	try:
-		a = hsd[i]
-		b = haplogroups[i]
+		a = hsd[i][hsd[i].keys()[0]]
+		b = haplogroups[hsd[i].keys()[0]]
 		failures = len(set(b) - set(a))
 		failed_vars = (set(b) - set(a))
 		failed_var_list = list(failed_vars)
+# 		print i,":",hsd[i].keys()[0],":\t",failed_var_list
 		out_list = []
 		for ii in range(0,len(failed_var_list)):
 			list_of_ele = list(failed_var_list[ii])
