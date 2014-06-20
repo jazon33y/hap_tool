@@ -5,14 +5,14 @@ import os, sys, math, bz2, itertools, re, getopt
 from scipy.stats import beta
 import pickle
 
-#================================================
+#===================================================
 # This python script was developed by Jason O'Rawe
-# as part of his PhD study in 2014
+# as part of his PhD study in 2014 at SBU.
 #
 #	<TODO> 
 # 	need to include deletions and insertions and 
 #	other complex variants
-#================================================
+#===================================================
 
 #======
 # Help 
@@ -123,7 +123,7 @@ def expand_chrom_M(x,type='vcf',GRCh37=GRCh37,NC_012920p1=NC_012920p1,hg19=hg19)
 			if i_s[6]=='no-call' or i_s[6]=='no-call-ri' or i_s[6]=='no-call-rc' or i_s[6]=='ref-inconsistent':
 				continue
 			
-			elif i_s[6]=='sub':
+			elif i_s[6]=='sub': # split subs, as they might be SNPs next to each other.  Suggestion by Brenna Henn.
 				begin = str(int(i_s[4]) + 1)
 				end = str(int(i_s[5]) ) #+1)
 				varType = i_s[6]
@@ -317,7 +317,7 @@ for i in hsd.keys():
 		if sum_weights_m==0 or sum_weights_n==0 or sum_weights_k==0:
 			continue # sum of the weights cannot be 0, if it is then skip - something went wrong
 		score =  (float(.5)*(float(sum_weights_k)/sum_weights_m))  + \
-					(float(.5)*(float(sum_weights_k)/sum_weights_n) ) # float bullshit, fuck you python
+					(float(.5)*(float(sum_weights_k)/sum_weights_n) ) # needs to be float value - this could be shorter
 		
 		haplogroup_score.append([ii,score])
 	max_score = [0,float(0)]
