@@ -7,7 +7,13 @@ import pickle
 
 #===================================================
 # This python script was developed by Jason O'Rawe
-# as part of his PhD study in 2014 at SBU.
+# as part of his PhD study in 2014 at SBU. If there
+# are egregious errors within, then this python script 
+# was developed by some other person.  No claims are made
+# about the correctness of anything within this script,
+# and it should not be used for anything other than
+# for research purposes.
+#
 #
 #	<TODO> 
 # 	need to include deletions and insertions and 
@@ -331,9 +337,7 @@ for i in hsd.keys():
 	varsz= hsd[i]
 	testing = {}
 	testing[max_score[0]] = varsz
-	hsd[i] = testing # put in newly predicted haplogroup 
-#	hsd[max_score[0]] = hsd[i] # put in newly predicted haplogroup 
-#	del hsd[i] # remove old file name as the key
+	hsd[i] = testing 
 
 if analysis_type=='haplogroup':
 	sys.exit()		
@@ -348,12 +352,18 @@ for i in hsd.keys():
 		failures = len(set(b) - set(a))
 		failed_vars = (set(b) - set(a))
 		failed_var_list = list(failed_vars)
-# 		print i,":",hsd[i].keys()[0],":\t",failed_var_list
 		out_list = []
 		for ii in range(0,len(failed_var_list)):
 			list_of_ele = list(failed_var_list[ii])
-			if ("." in list_of_ele) or ("!" in list_of_ele) or ("d" in list_of_ele):
+			if ("." in list_of_ele) or ("d" in list_of_ele):
 				continue
+			elif (("!" in list_of_ele) and (len(list(set(list_of_ele[-2:]))) == len(list_of_ele[-2:]))): # remove back mutation from the expected list
+				kill = set([''.join(list_of_ele[:-1])])
+				failures = len((set(b)- kill) - set(a))
+				failed_vars = ((set(b)- kill) - set(a))
+				failed_var_list = list(failed_vars)
+				list_of_ele.pop()
+				out_list.append("".join(list_of_ele))
 			else:
 				list_of_ele.pop()
 				out_list.append("".join(list_of_ele))
