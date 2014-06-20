@@ -260,18 +260,18 @@ parser = argparse.ArgumentParser(description="This script uses phylotree informa
 												"- estimate false negative call rates\n\t"\
 												"- return all loci which should have a SNP",formatter_class=RawTextHelpFormatter)
 
-parser.add_argument('-phy',metavar='<phy>',help='phylotree build in xml format', required=True)
+#parser.add_argument('-phy',metavar='<phy>',help='phylotree build in xml format', required=True)
 parser.add_argument('-ana',metavar='<ana>',help='analysis type; haplogroup, error_rate, FN_locus', default='haplogroup')
 parser.add_argument('-ft',metavar='<ft>',help='file type; vcf, vcfgrch, var', default='vcf')
 parser.add_argument('-file',metavar='<file>',help='input file, .vcf or .var', nargs='*', required=True)
 
 args = parser.parse_args()
-phy = args.phy
+#phy = args.phy
 ana = args.ana
 ft = args.ft
 file = args.file
 
-phylotree_in = phy
+#phylotree_in = phy
 analysis_type = ana
 type = ft
 files = file
@@ -302,7 +302,7 @@ except:
 
 # False negative rate and hap tree build
 
-open_file = open(phylotree_in,'r')
+#open_file = open(phylotree_in,'r')
 
 haplogroups = {}
 hap_list = []
