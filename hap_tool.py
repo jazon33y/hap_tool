@@ -47,26 +47,26 @@ files = file
 # Load *required* objects
 #========================
 
-file1 = open("objs/haplogroups.obj",'rb')
-file2 = open("objs/poly_hash.obj",'rb')
-file3 = open("objs/polys.obj",'rb')
-file4 = open("objs/GRCh37.obj",'rb')
-file5 = open("objs/NC_012920p1.obj",'rb')
-file6 = open("objs/hg19.obj",'rb')
+obj1 = open("objs/haplogroups.obj",'rb')
+obj2 = open("objs/poly_hash.obj",'rb')
+obj3 = open("objs/polys.obj",'rb')
+obj4 = open("objs/GRCh37.obj",'rb')
+obj5 = open("objs/NC_012920p1.obj",'rb')
+obj6 = open("objs/hg19.obj",'rb')
 
-haplogroups = pickle.load(file1)
-poly_hash = pickle.load(file2)
-polys = pickle.load(file3)
-GRCh37 = pickle.load(file4)
-NC_012920p1 = pickle.load(file5)
-hg19 = pickle.load(file6)
+haplogroups = pickle.load(obj1)
+poly_hash = pickle.load(obj2)
+polys = pickle.load(obj3)
+GRCh37 = pickle.load(obj4)
+NC_012920p1 = pickle.load(obj5)
+hg19 = pickle.load(obj6)
 
-file1.close()
-file2.close()
-file3.close()
-file4.close()
-file5.close()
-file6.close()
+obj1.close()
+obj2.close()
+obj3.close()
+obj4.close()
+obj5.close()
+obj6.close()
 
 #=========== 
 # Functions 
@@ -300,21 +300,22 @@ try:
 		ii.close()
 		chrom_M = filter_vars(infile,type)
 		expanded_chrom_M = expand_chrom_M(chrom_M,type)
+		if analysis_type=='fasta':		
+			def natural_sort(l): #natural sorting algorithm
+				convert = lambda text: int(text) if text.isdigit() else text.lower()
+				alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ]
+				return sorted(l, key = alphanum_key)
+			fasta_data = natural_sort(expanded_chrom_M)
+			fasta = []
+			for i in fasta_data:
+				fasta.append(i[-1:])
+			print sample_name,':\t',''.join(fasta)
 		fixed_chrom_M = fix_chrom_M(expanded_chrom_M)
 		hsd[sample_name] = get_hsd(fixed_chrom_M,sample_name)
 except:
 	print "\HSD creation error:", sys.exc_info()[0]
 
 if analysis_type=='fasta':		
-	def natural_sort(l): #natural sorting algorithm
-		convert = lambda text: int(text) if text.isdigit() else text.lower()
-		alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ]
-		return sorted(l, key = alphanum_key)
-	fasta_data = natural_sort(expanded_chrom_M)
-	fasta = []
-	for i in fasta_data:
-		fasta.append(i[-1:])
-	print ''.join(fasta)
 	sys.exit()
 
 # Here I estimate haplogroup based using the haplogrep algorithm
@@ -362,6 +363,8 @@ for i in hsd.keys():
 	try:
 		a = hsd[i][hsd[i].keys()[0]]
 		b = haplogroups[hsd[i].keys()[0]]
+		print 'observed ',hsd[i].keys()[0],':\t', a
+		print 'expected ',hsd[i].keys()[0],':\t', b
 		failures = len(set(b) - set(a))
 		failed_vars = (set(b) - set(a))
 		failed_var_list = list(failed_vars)
@@ -376,10 +379,12 @@ for i in hsd.keys():
 				failed_vars = ((set(b)- kill) - set(a))
 				failed_var_list = list(failed_vars)
 				list_of_ele.pop()
+				list_of_ele.pop()
 				out_list.append("".join(list_of_ele))
 			else:
 				list_of_ele.pop()
 				out_list.append("".join(list_of_ele))
+		print 'outlist:\t',out_list
 		all_var_locs.extend(out_list)
 		test_set = len(b) - (len(failed_var_list) - len(out_list) )
 		sucesses = test_set - len(out_list)
