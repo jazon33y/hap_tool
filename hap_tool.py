@@ -363,8 +363,6 @@ for i in hsd.keys():
 	try:
 		a = hsd[i][hsd[i].keys()[0]]
 		b = haplogroups[hsd[i].keys()[0]]
-		print 'observed ',hsd[i].keys()[0],':\t', a
-		print 'expected ',hsd[i].keys()[0],':\t', b
 		failures = len(set(b) - set(a))
 		failed_vars = (set(b) - set(a))
 		failed_var_list = list(failed_vars)
@@ -384,7 +382,6 @@ for i in hsd.keys():
 			else:
 				list_of_ele.pop()
 				out_list.append("".join(list_of_ele))
-		print 'outlist:\t',out_list
 		all_var_locs.extend(out_list)
 		test_set = len(b) - (len(failed_var_list) - len(out_list) )
 		sucesses = test_set - len(out_list)
