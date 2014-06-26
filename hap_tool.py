@@ -363,36 +363,62 @@ for i in hsd.keys():
 	try:
 		a = hsd[i][hsd[i].keys()[0]]
 		b = haplogroups[hsd[i].keys()[0]]
+		print '\nBefore fix:'
+		print 'observed ',hsd[i].keys()[0],':\t', sorted(a)
+		print 'expected ',hsd[i].keys()[0],':\t', sorted(b)
 		failures = len(set(b) - set(a))
 		failed_vars = (set(b) - set(a))
 		failed_var_list = list(failed_vars)
+		print 'False negatives:\t',failed_var_list
 		out_list = []
 		for ii in range(0,len(failed_var_list)):
 			list_of_ele = list(failed_var_list[ii])
-			if ("." in list_of_ele) or ("d" in list_of_ele):
-				continue
-			elif (("!" in list_of_ele) and (len(list(set(list_of_ele[-2:]))) == len(list_of_ele[-2:]))): # remove back mutation from the expected list
+			if (("!" in list_of_ele) and (len(list(set(list_of_ele[-2:]))) == len(list_of_ele[-2:]))): # remove back mutation from the expected list
 				kill = set([''.join(list_of_ele[:-1])])
-				failures = len((set(b)- kill) - set(a))
-				failed_vars = ((set(b)- kill) - set(a))
-				failed_var_list = list(failed_vars)
+				failures_b = len((set(b)- kill) - set(a))
+				failed_vars_b = ((set(b)- kill) - set(a))
+				failed_var_list_b = list(failed_vars_b)
+				b = set(b) - set([''.join(list_of_ele)])
+			if ("." in list_of_ele) or ("d" in list_of_ele):
+				kill = set([''.join(list_of_ele)])
+				failures_b = len((set(b)- kill) - set(a))
+				failed_vars_b = ((set(b)- kill) - set(a))
+				failed_var_list_b = list(failed_vars_b)
+				b = set(b) - set([''.join(list_of_ele)])
+		failures = failures_b
+		failed_vars = failed_vars_b
+		failed_var_list = failed_var_list_b
+		for ii in range(0,len(failed_var_list)):
+			list_of_ele = list(failed_var_list[ii])
+			if (("!" in list_of_ele) and (len(list(set(list_of_ele[-2:]))) == len(list_of_ele[-2:]))): 
 				list_of_ele.pop()
 				list_of_ele.pop()
 				out_list.append("".join(list_of_ele))
 			else:
 				list_of_ele.pop()
 				out_list.append("".join(list_of_ele))
+		print '\nAfter fix:'
+		print 'observed ',hsd[i].keys()[0],':\t', sorted(a)
+		print 'expected ',hsd[i].keys()[0],':\t', sorted(b)
+		print 'False negatives:\t',failed_var_list
 		all_var_locs.extend(out_list)
-		test_set = len(b) - (len(failed_var_list) - len(out_list) )
-		sucesses = test_set - len(out_list)
+		sucesses = len(b) - len(out_list)
 		failures = len(out_list)
 	except:
+		print sys.exc_info()
 		continue # if there is an error, skip it and go to the next
 	wins.append(sucesses)
 	losses.append(failures)
 
+ones = map(int,list(str(1)*sum(losses)))
+zeros = map(int,list(str(0)*sum(wins))) 
+ones.extend(zeros)
+
+print '\nNumber of errors (missed expected calls):\t',sum(ones)
+print 'Number of expected calls:\t',len(ones),'\n'
+
 if analysis_type=='FN_locus':
-	print map(int,all_var_locs)
+	print 'Locations where calls should be made but were not:\t',map(int,all_var_locs),'\n'
 	sys.exit()
 	
 ones = map(int,list(str(1)*sum(losses)))
