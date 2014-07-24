@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import argparse
 from argparse import RawTextHelpFormatter
-import os, sys, math, bz2, itertools, re, getopt
+import os, sys, math, bz2, itertools, re, getopt, numpy
 from scipy.stats import beta
 import pickle
 
@@ -363,13 +363,13 @@ for i in hsd.keys():
 	try:
 		a = hsd[i][hsd[i].keys()[0]]
 		b = haplogroups[hsd[i].keys()[0]]
-		print '\nBefore fix:'
-		print 'observed ',hsd[i].keys()[0],':\t', sorted(a)
-		print 'expected ',hsd[i].keys()[0],':\t', sorted(b)
+# 		print '\nBefore fix:'
+# 		print 'observed ',hsd[i].keys()[0],':\t', sorted(a)
+# 		print 'expected ',hsd[i].keys()[0],':\t', sorted(b)
 		failures = len(set(b) - set(a))
 		failed_vars = (set(b) - set(a))
 		failed_var_list = list(failed_vars)
-		print 'False negatives:\t',failed_var_list
+# 		print 'False negatives:\t',failed_var_list
 		out_list = []
 		for ii in range(0,len(failed_var_list)):
 			list_of_ele = list(failed_var_list[ii])
@@ -397,10 +397,10 @@ for i in hsd.keys():
 			else:
 				list_of_ele.pop()
 				out_list.append("".join(list_of_ele))
-		print '\nAfter fix:'
-		print 'observed ',hsd[i].keys()[0],':\t', sorted(a)
-		print 'expected ',hsd[i].keys()[0],':\t', sorted(b)
-		print 'False negatives:\t',failed_var_list
+# 		print '\nAfter fix:'
+# 		print 'observed ',hsd[i].keys()[0],':\t', sorted(a)
+# 		print 'expected ',hsd[i].keys()[0],':\t', sorted(b)
+# 		print 'False negatives:\t',failed_var_list
 		all_var_locs.extend(out_list)
 		sucesses = len(b) - len(out_list)
 		failures = len(out_list)
@@ -414,8 +414,8 @@ ones = map(int,list(str(1)*sum(losses)))
 zeros = map(int,list(str(0)*sum(wins))) 
 ones.extend(zeros)
 
-print '\nNumber of errors (missed expected calls):\t',sum(ones)
-print 'Number of expected calls:\t',len(ones),'\n'
+# print '\nNumber of errors (missed expected calls):\t',sum(ones)
+# print 'Number of expected calls:\t',len(ones),'\n'
 
 if analysis_type=='FN_locus':
 	print 'Locations where calls should be made but were not:\t',map(int,all_var_locs),'\n'
@@ -437,7 +437,9 @@ for i in range(n):
 	post.append(beta.rvs(sum(ones)+p1,len_ones-sum(ones)+p2)) # generate the posterior
 
 if analysis_type=='error_rate':
-	print post
+	print "\n\'Error rate:\'"
+	print "Expectation: ",numpy.mean(post)
+	print "95% credible interval: ",beta.ppf([float(0.05),float(.95)],sum(ones)+p1,len_ones-sum(ones)+p2),"\n"
 	sys.exit()
 
 sys.exit()
