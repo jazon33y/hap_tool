@@ -173,6 +173,13 @@ def expand_chrom_M(x,type='vcf',GRCh37=GRCh37,NC_012920p1=NC_012920p1,hg19=hg19)
 		for i in x:
 			i_s = i.split('\t')
 			
+			if "," in i_s[4]: # split multi allelic sites
+				multi_allele = i_s[4].split(",")
+				for allele in multi_allele[1:]:
+					i_s[4] = allele
+					x.append("\t".join(i_s))
+				i_s[4] = multi_allele[:1][0]
+				
 			if len(i_s[3]) > 1 or len(i_s[4]) > 1:  # if not a snp
 				continue
 			elif i_s[3]=='-' or i_s[4]=='-': # if not a snp
@@ -228,6 +235,14 @@ def expand_chrom_M(x,type='vcf',GRCh37=GRCh37,NC_012920p1=NC_012920p1,hg19=hg19)
 		list_of_allele_pos = []
 		for i in x:
 			i_s = i.split('\t')
+			
+			if "," in i_s[4]: # split multi allelic sites
+				multi_allele = i_s[4].split(",")
+				for allele in multi_allele[1:]:
+					i_s[4] = allele
+					x.append("\t".join(i_s))
+				i_s[4] = multi_allele[:1][0]
+
 			if len(i_s[3]) > 1 or len(i_s[4]) > 1:  # if not a snp
 				continue
 			elif i_s[3]=='-' or i_s[4]=='-': # if not a snp
