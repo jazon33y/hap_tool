@@ -130,7 +130,7 @@ def expand_chrom_M(x,type='vcf',GRCh37=GRCh37,NC_012920p1=NC_012920p1,hg19=hg19)
 			if i_s[6]=='no-call' or i_s[6]=='no-call-ri' or i_s[6]=='no-call-rc' or i_s[6]=='ref-inconsistent':
 				continue
 			
-			elif i_s[6]=='sub': # split subs, as they might be SNPs next to each other.  Suggestion by Brenna Henn.
+			elif i_s[6]=='sub': # split subs, as they might be SNPs next to each other.  Suggestion by Brenna Henn 2014.
 				begin = str(int(i_s[4]) + 1)
 				end = str(int(i_s[5]) ) #+1)
 				varType = i_s[6]
