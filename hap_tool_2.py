@@ -31,7 +31,7 @@ parser = argparse.ArgumentParser(description="This script uses phylotree informa
 												"- return all loci which should have a SNP",formatter_class=RawTextHelpFormatter)
 
 parser.add_argument('-ana',metavar='<ana>',help='analysis type; fasta, haplogroup, error_rate, FN_locus', default='haplogroup')
-parser.add_argument('-ft',metavar='<ft>',help='file type; vcf, vcfgrch, var', default='vcf')
+parser.add_argument('-ft',metavar='<ft>',help='file type; vcf', default='vcf')
 parser.add_argument('-file',metavar='<file>',help='input file, .vcf or .var', nargs='*', required=True)
 
 args = parser.parse_args()
@@ -124,51 +124,8 @@ def expand_chrom_M(x,type='vcf',GRCh37=GRCh37,NC_012920p1=NC_012920p1,hg19=hg19)
 	chrom_m_old_seq = GRCh37 #GRCh37
 	chrom_m_seq = NC_012920p1 #NC_012920.1
 	expanded_chrM = []
-	if type=='var':
-		for i in x:
-			i_s = i.split('\t')
-			if i_s[6]=='no-call' or i_s[6]=='no-call-ri' or i_s[6]=='no-call-rc' or i_s[6]=='ref-inconsistent':
-				continue
-			
-			elif i_s[6]=='sub': # split subs, as they might be SNPs next to each other.  Suggestion by Brenna Henn 2014.
-				begin = str(int(i_s[4]) + 1)
-				end = str(int(i_s[5]) ) #+1)
-				varType = i_s[6]
-				reference = chrom_m_seq[int(i_s[4])]
-				alleleSeq = i_s[8]
-				if len(i_s[7])==len(alleleSeq):
-					count = 0
-					for ii in range(int(begin),int(end)+1):
-						begin = str(ii)
-						end = str(ii)
-						varType = 'snp'
-						reference = chrom_m_seq[ii-1]
-						alleleSeq = str(list(i_s[8])[count])
-						expanded_chrM.append(begin + '\t' + end + '\t' + varType + '\t' + reference + '\t' + alleleSeq)
-						count = count+1
-				
-			elif i_s[6]=='snp':
-				begin = str(int(i_s[4]) + 1)
-				end = str(int(i_s[5]) ) #+1)
-				varType = i_s[6]
-				reference = chrom_m_seq[int(i_s[4])]
-				alleleSeq = i_s[8]
-				expanded_chrM.append(begin + '\t' + end + '\t' + varType + '\t' + reference + '\t' + alleleSeq)
-			
-			elif i_s[6]=='ref':
-				start = i_s[4]
-				open_end = i_s[5]
-				for each in range( int(start),int(open_end) ): #+ 1 ):
-					begin = str(each + 1)
-					end = str(each + 1)
-					varType = 'ref'
-					reference = chrom_m_seq[each]
-					alleleSeq = chrom_m_old_seq[each]
-					expanded_chrM.append(begin + '\t' + end + '\t' + varType + '\t' + reference + '\t' + alleleSeq)  
-		return(expanded_chrM)
-    	
+	
 	if type=='vcf':
-		chrom_m_old_seq = hg19 #hg19
 		list_of_allele_pos = []
 		for i in x:
 			i_s = i.split('\t')
@@ -189,17 +146,6 @@ def expand_chrom_M(x,type='vcf',GRCh37=GRCh37,NC_012920p1=NC_012920p1,hg19=hg19)
 
 			alele_pos = int(i_s[1])
 			list_of_allele_pos.append(alele_pos)
-			
-			if alele_pos>=311 and alele_pos<=316:
-				alele_pos=alele_pos-1
-			elif alele_pos>=318 and alele_pos<=3108:
-				alele_pos=alele_pos-2
-			elif alele_pos>=3019 and alele_pos<=16190:
-				alele_pos=alele_pos-1
-			elif alele_pos>=16191 and alele_pos<=16571:
-				alele_pos=alele_pos-2
-			else:
-				alele_pos=alele_pos
 				
 			begin = str(int(alele_pos))
 			end = begin
@@ -207,69 +153,10 @@ def expand_chrom_M(x,type='vcf',GRCh37=GRCh37,NC_012920p1=NC_012920p1,hg19=hg19)
 			reference = chrom_m_seq[int(alele_pos)-1] # python is base 0, the above should be base 1
 			alleleSeq = i_s[4]
 			expanded_chrM.append(begin + '\t' + end + '\t' + varType + '\t' + reference + '\t' + alleleSeq)
-	
-		refs = list(set(range(1,len(chrom_m_old_seq)+1)) - set(list_of_allele_pos))
 		
-		for i in refs:
-			if i>=311 and i<=316:
-				j=i-1
-			elif i>=318 and i<=3108:
-				j=i-2
-			elif i>=3019 and i<=16190:
-				j=i-1
-			elif i>=16191 and i<=16571:
-				j=i-2
-			else:
-				j=i
-
-			begin = str(j)
-			end = begin
-			varType = 'ref' # should be only ref calls now
-			reference = chrom_m_seq[j-1] # python is base 0, the above should be base 1
-			alleleSeq = chrom_m_old_seq[i-1] # python is base 0, the above should be base 1
-			expanded_chrM.append(begin + '\t' + end + '\t' + varType + '\t' + reference + '\t' + alleleSeq)  
 		return(expanded_chrM)
 		
-	if type=='vcfgrch':
-		#hg19
-		list_of_allele_pos = []
-		for i in x:
-			i_s = i.split('\t')
-			
-			if "," in i_s[4]: # split multi allelic sites
-				multi_allele = i_s[4].split(",")
-				for allele in multi_allele[1:]:
-					i_s[4] = allele
-					x.append("\t".join(i_s))
-				i_s[4] = multi_allele[:1][0]
-
-			if len(i_s[3]) > 1 or len(i_s[4]) > 1:  # if not a snp
-				continue
-			elif i_s[3]=='-' or i_s[4]=='-': # if not a snp
-				continue
-			elif i_s[3]=='.' or i_s[4]=='.': # if not a snp
-				continue
-
-			alele_pos = int(i_s[1])
-			list_of_allele_pos.append(alele_pos)
-							
-			begin = str(int(alele_pos))
-			end = begin
-			varType = 'snp' #  should be snp at this point
-			reference = chrom_m_seq[int(alele_pos)-1] # python is base 0, the above should be base 1
-			alleleSeq = i_s[4]
-			expanded_chrM.append(begin + '\t' + end + '\t' + varType + '\t' + reference + '\t' + alleleSeq)
 	
-		refs = list(set(range(1,len(chrom_m_old_seq)+1)) - set(list_of_allele_pos))
-		
-		for i in refs:
-			begin = str(i)
-			end = begin
-			varType = 'ref' # should be only ref calls now
-			reference = chrom_m_seq[i-1] # python is base 0, the above should be base 1
-			alleleSeq = chrom_m_old_seq[i-1] # python is base 0, the above should be base 1
-			expanded_chrM.append(begin + '\t' + end + '\t' + varType + '\t' + reference + '\t' + alleleSeq)  
-		return(expanded_chrM)
 
 
 # This function generates a set of fixed chromM variants
