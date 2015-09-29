@@ -293,89 +293,90 @@ class mitchondrial_genome(object):
 # Help 
 #======
 
+if __name__ == "__main__":
 
-parser = argparse.ArgumentParser(description="This script uses phylotree information to: \n\n\t"\
-												"- return chrM in FASTA format\n\t"\
-												"- estimate haplogroup\n\t"\
-												"- estimate false negative call rates\n\t"\
-												"- return all loci which should have a SNP",formatter_class=RawTextHelpFormatter)
+	parser = argparse.ArgumentParser(description="This script uses phylotree information to: \n\n\t"\
+													"- return chrM in FASTA format\n\t"\
+													"- estimate haplogroup\n\t"\
+													"- estimate false negative call rates\n\t"\
+													"- return all loci which should have a SNP",formatter_class=RawTextHelpFormatter)
 
-parser.add_argument('-ana',metavar='<ana>',help='analysis type; fasta, haplogroup, FN_rate, FN_locus', default='haplogroup')
-parser.add_argument('-ft',metavar='<ft>',help='file type; vcf-hg19, vcf-grch37, var', default='vcf-hg19')
-parser.add_argument('-file',metavar='<file>',help='input file, .vcf or .var', nargs='*', required=True)
+	parser.add_argument('-ana',metavar='<ana>',help='analysis type; fasta, haplogroup, FN_rate, FN_locus', default='haplogroup')
+	parser.add_argument('-ft',metavar='<ft>',help='file type; vcf-hg19, vcf-grch37, var', default='vcf-hg19')
+	parser.add_argument('-file',metavar='<file>',help='input file, .vcf or .var', nargs='*', required=True)
 
-args = parser.parse_args()
-ana = args.ana
-ft = args.ft
-file = args.file
+	args = parser.parse_args()
+	ana = args.ana
+	ft = args.ft
+	file = args.file
 
-analysis_type = ana
-type = ft
-files = file
+	analysis_type = ana
+	type = ft
+	files = file
 
-#========================
-# Load *required* objects
-# 
-# Note that these are not
-# necessarily computed 
-# beforehand, this just makes
-# the computation time very fast
-# 
-#
-obj1 = open("objs/haplogroups.obj",'rb')
-obj2 = open("objs/poly_hash.obj",'rb')
-obj3 = open("objs/polys.obj",'rb')
-obj4 = open("objs/GRCh37.obj",'rb')
-obj5 = open("objs/NC_012920p1.obj",'rb')
-obj6 = open("objs/hg19.obj",'rb')
-# 
-# 
-haplogroups = pickle.load(obj1)
-poly_hash = pickle.load(obj2)
-polys = pickle.load(obj3)
-GRCh37 = pickle.load(obj4)
-NC_012920p1 = pickle.load(obj5)
-hg19 = pickle.load(obj6)
-# 
-# 
-obj1.close()
-obj2.close()
-obj3.close()
-obj4.close()
-obj5.close()
-obj6.close()
-# 
-#========================
+	#========================
+	# Load *required* objects
+	# 
+	# Note that these are not
+	# necessarily computed 
+	# beforehand, this just makes
+	# the computation time very fast
+	# 
+	#
+	obj1 = open("objs/haplogroups.obj",'rb')
+	obj2 = open("objs/poly_hash.obj",'rb')
+	obj3 = open("objs/polys.obj",'rb')
+	obj4 = open("objs/GRCh37.obj",'rb')
+	obj5 = open("objs/NC_012920p1.obj",'rb')
+	obj6 = open("objs/hg19.obj",'rb')
+	# 
+	# 
+	haplogroups = pickle.load(obj1)
+	poly_hash = pickle.load(obj2)
+	polys = pickle.load(obj3)
+	GRCh37 = pickle.load(obj4)
+	NC_012920p1 = pickle.load(obj5)
+	hg19 = pickle.load(obj6)
+	# 
+	# 
+	obj1.close()
+	obj2.close()
+	obj3.close()
+	obj4.close()
+	obj5.close()
+	obj6.close()
+	# 
+	#========================
 
-#========
-# do work
-#========
+	#========
+	# do work
+	#========
 
-mt_Genomes = mitchondrial_genome(inputfiles = files, type = type, GRCh37 = GRCh37 , NC_012920p1 = NC_012920p1, hg19 = hg19,haplogroups = haplogroups, poly_hash = poly_hash, polys = polys)
+	mt_Genomes = mitchondrial_genome(inputfiles = files, type = type, GRCh37 = GRCh37 , NC_012920p1 = NC_012920p1, hg19 = hg19,haplogroups = haplogroups, poly_hash = poly_hash, polys = polys)
 
-mt_Genomes.process_chrM()
-mt_Genomes.get_haplogroups()
-mt_Genomes.get_FN()
+	mt_Genomes.process_chrM()
+	mt_Genomes.get_haplogroups()
+	mt_Genomes.get_FN()
 
-if analysis_type == "fasta":
-	for i in mt_Genomes.fasta.keys():
-		print mt_Genomes.fasta[i]
+	if analysis_type == "fasta":
+		for i in mt_Genomes.fasta.keys():
+			print mt_Genomes.fasta[i]
 
-elif analysis_type == "haplogroup":
-	for i in mt_Genomes.haplogroups.keys():
-		print str(i) + ": " + str(mt_Genomes.haplogroups[i][0]) + "; " + str(mt_Genomes.haplogroups[i][1])
+	elif analysis_type == "haplogroup":
+		for i in mt_Genomes.haplogroups.keys():
+			print str(i) + ": " + str(mt_Genomes.haplogroups[i][0]) + "; " + str(mt_Genomes.haplogroups[i][1])
 
-elif analysis_type == "FN_rate":
-	print "\n\'Error rate:\'"
-	print "Expectation: ",mt_Genomes.FN_rate[0]
-	print "95% credible interval: [",mt_Genomes.FN_rate[1],",",mt_Genomes.FN_rate[2],"]\n"
+	elif analysis_type == "FN_rate":
+		print "\n\'Error rate:\'"
+		print "Expectation: ",mt_Genomes.FN_rate[0]
+		print "95% credible interval: [",mt_Genomes.FN_rate[1],",",mt_Genomes.FN_rate[2],"]\n"
 
-elif analysis_type == "FN_locus":
-	for i in mt_Genomes.observed_variants.keys():
-		print 'Locations where calls should be made but were not, ' + i + ':'#,map(int,all_var_locs),'\n'
-		print 'observed ',i,':\t', mt_Genomes.observed_variants[i]
-		print 'expected ',i,':\t', mt_Genomes.expected_variants[i]
-		print 'False negatives:\t',mt_Genomes.false_negative_variants[i]
+	elif analysis_type == "FN_locus":
+		for i in mt_Genomes.observed_variants.keys():
+			print 'Locations where calls should be made but were not, ' + i + ':'#,map(int,all_var_locs),'\n'
+			print 'observed ',i,':\t', mt_Genomes.observed_variants[i]
+			print 'expected ',i,':\t', mt_Genomes.expected_variants[i]
+			print 'False negatives:\t',mt_Genomes.false_negative_variants[i]
 
-else: print "\nInvalid analysis type\n"
+	else: print "\nInvalid analysis type\n"
 
