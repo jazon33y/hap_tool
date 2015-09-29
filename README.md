@@ -21,3 +21,12 @@ optional arguments:
   -file [<file> [<file> ...]]
                         input file, .vcf or .var
 ```
+
+For example, you can use one of the tester files to estimate its haplogroup:
+
+```
+$ python hap_tool.py -ana haplogroup -ft vcf-hg19 -file FreeBayes.vcf
+FreeBayes.vcf: K1a4a1a+195; 0.912856941806
+```
+
+The script will return the haplogroup and its score - the higher, the better in terms of the quality of the assignment.
